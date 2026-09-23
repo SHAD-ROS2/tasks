@@ -1,0 +1,20 @@
+/**/front_range_sensor:
+  ros__parameters:
+    publish_rate_hz: 4.0
+    readings_m: [0.35]
+
+/**/obstacle_filter:
+  ros__parameters:
+    stop_distance_m: 0.60
+
+/**/mission_planner:
+  ros__parameters:
+    cruise_speed_mps: 0.35
+
+/**/drive_controller:
+  ros__parameters:
+    max_speed_mps: 0.50
+
+/**/safety_monitor:
+  ros__parameters:
+    stop_distance_m: 0.50

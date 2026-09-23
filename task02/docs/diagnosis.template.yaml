@@ -1,0 +1,29 @@
+schema: 1
+task: task02
+
+environment:
+  clean_start_command: ""
+  ros_distribution: ""
+  rmw_implementation: ""
+
+incidents:
+  - id: ""
+    symptom: ""
+    evidence:
+      command: ""
+      observation: ""
+    fault_class: ""
+    root_cause: ""
+    minimal_fix: ""
+    verification:
+      command: ""
+      observation: ""
+
+final_acceptance:
+  clean_pipeline: ""
+  single_robot_graph: ""
+  late_joiner: ""
+  two_robot_isolation: ""
+  clean_shutdown: ""
+
+known_limits: ""

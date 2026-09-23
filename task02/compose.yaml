@@ -1,0 +1,28 @@
+services:
+  workspace:
+    image: ${COURSE_IMAGE:-ghcr.io/shad-ros2/tasks@sha256:604b85d31cfa14366b7f4c81a6cd08110b37cfe4f3c9804f7dd14be3860b929d}
+    pull_policy: missing
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      HOME: /home/student
+      ROS_DOMAIN_ID: "43"
+      ROS_AUTOMATIC_DISCOVERY_RANGE: LOCALHOST
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - .:/workspace
+    shm_size: 256m
+    mem_limit: "${COURSE_MEMORY:-3g}"
+    cpus: "${COURSE_CPUS:-2}"
+    pids_limit: 512
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    command: [bash, -lc, "trap 'exit 0' TERM INT; while :; do sleep 3600; done"]
+    healthcheck:
+      test: [CMD, bash, -lc, "source /opt/ros/jazzy/setup.bash && test -d /workspace/src && ros2 --help >/dev/null && python3 -c 'import rclpy, yaml'"]
+      interval: 5s
+      timeout: 4s
+      start_period: 15s
+      retries: 6

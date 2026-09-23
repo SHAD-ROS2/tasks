@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>warehouse_bringup</name>
+  <version>0.2.0</version>
+  <description>Launch files and parameters for the warehouse stack.</description>
+  <maintainer email="ros2-course@example.invalid">SHAD ROS 2 course</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>warehouse_nodes</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

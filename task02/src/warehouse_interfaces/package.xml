@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>warehouse_interfaces</name>
+  <version>0.2.0</version>
+  <description>Messages used by the SHAD ROS 2 warehouse exercise.</description>
+  <maintainer email="ros2-course@example.invalid">SHAD ROS 2 course</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

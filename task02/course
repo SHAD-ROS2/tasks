@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# Host-side helper for the Day 2 pinned ROS 2 environment.
+set -euo pipefail
+
+cd "$(dirname "$0")"
+
+usage() {
+  cat <<'EOF'
+Usage: ./course <command> [args]
+
+  up                  start the pinned workspace container
+  down                stop it and remove the Compose network
+  doctor              verify Docker, ROS 2, RMW and the mounted workspace
+  shell               open an interactive Bash shell in /workspace
+  build               run rosdep and colcon build
+  test                run colcon test and print all results
+  launch <pkg> <file> [launch arguments]
+                      source the workspace and run ros2 launch
+  exec <command...>   source ROS/workspace and run another command
+EOF
+}
+
+require_docker() {
+  command -v docker >/dev/null || {
+    echo "Docker is not installed or not on PATH." >&2
+    exit 2
+  }
+  docker info >/dev/null 2>&1 || {
+    echo "Docker daemon is not reachable. Start Docker Desktop or dockerd." >&2
+    exit 2
+  }
+  docker compose version >/dev/null
+}
+
+require_running() {
+  if ! docker compose ps --status running --services | grep -qx workspace; then
+    echo "The workspace container is not running. Use: ./course up" >&2
+    exit 2
+  fi
+}
+
+run_sourced() {
+  local tty_flag="-T"
+  if [[ -t 0 && -t 1 ]]; then
+    tty_flag=""
+  fi
+  docker compose exec ${tty_flag:+$tty_flag} workspace bash -lc \
+    'source /opt/ros/jazzy/setup.bash; if [[ -f /workspace/install/setup.bash ]]; then source /workspace/install/setup.bash; fi; exec "$@"' \
+    bash "$@"
+}
+
+command_name="${1:-help}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+if [[ "$command_name" == "help" || "$command_name" == "-h" || "$command_name" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+require_docker
+
+case "$command_name" in
+  up)
+    docker compose up -d --wait
+    ;;
+  down)
+    docker compose down
+    ;;
+  doctor)
+    docker compose config --quiet
+    require_running
+    docker compose exec -T workspace bash -lc '
+      set -eo pipefail
+      source /opt/ros/jazzy/setup.bash
+      set -u
+      test -w /workspace
+      test -d /workspace/src
+      ros2 --help >/dev/null
+      python3 -c "import rclpy, yaml"
+      printf "ROS_DISTRO=%s\n" "$ROS_DISTRO"
+      printf "RMW_IMPLEMENTATION=%s\n" "$RMW_IMPLEMENTATION"
+      printf "ROS_DOMAIN_ID=%s\n" "$ROS_DOMAIN_ID"
+      printf "workspace=%s\n" "$(pwd)"
+    '
+    ;;
+  shell)
+    require_running
+    docker compose exec workspace bash -lc '
+      source /opt/ros/jazzy/setup.bash
+      if [[ -f /workspace/install/setup.bash ]]; then
+        source /workspace/install/setup.bash
+      fi
+      exec bash --noprofile --norc -i
+    '
+    ;;
+  build)
+    require_running
+    docker compose exec -T workspace bash -lc '
+      set -eo pipefail
+      source /opt/ros/jazzy/setup.bash
+      set -u
+      if [[ ! -d "${HOME}/.ros/rosdep/sources.cache" ]]; then
+        rosdep update --rosdistro jazzy
+      fi
+      rosdep install --from-paths src --ignore-src -y
+      colcon build --event-handlers console_direct+
+    '
+    ;;
+  test)
+    require_running
+    docker compose exec -T workspace bash -lc '
+      set -eo pipefail
+      source /opt/ros/jazzy/setup.bash
+      source install/setup.bash
+      set -u
+      colcon test --event-handlers console_direct+
+      colcon test-result --verbose
+    '
+    ;;
+  launch)
+    require_running
+    if [[ $# -lt 2 ]]; then
+      echo "Usage: ./course launch <package> <launch-file> [arguments]" >&2
+      exit 2
+    fi
+    run_sourced ros2 launch "$@"
+    ;;
+  exec)
+    require_running
+    if [[ $# -eq 0 ]]; then
+      echo "Usage: ./course exec <command...>" >&2
+      exit 2
+    fi
+    run_sourced "$@"
+    ;;
+  *)
+    echo "Unknown command: $command_name" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
