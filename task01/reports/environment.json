@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "release": "2026.1-l01-rc2",
+  "image_ref": "ghcr.io/shad-ros2/tasks@sha256:604b85d31cfa14366b7f4c81a6cd08110b37cfe4f3c9804f7dd14be3860b929d",
+  "architecture": "aarch64",
+  "python": "3.12.3",
+  "checks": [
+    {
+      "check": "workspace_disk",
+      "status": "pass",
+      "detail": "11.0 GiB free visible inside container; 30 GiB host recommendation includes images/cache"
+    },
+    {
+      "check": "ros_interfaces",
+      "status": "pass",
+      "detail": "rclpy and generated ExploreZone import"
+    },
+    {
+      "check": "workspace_write",
+      "status": "pass",
+      "detail": "/workspace"
+    },
+    {
+      "check": "internal_port_8080",
+      "status": "pass",
+      "detail": "listener reachable"
+    },
+    {
+      "check": "internal_port_8081",
+      "status": "pass",
+      "detail": "listener reachable"
+    },
+    {
+      "check": "host_docker",
+      "status": "pass",
+      "detail": "server=29.6.2 arch=arm64"
+    },
+    {
+      "check": "headless_smoke",
+      "status": "pass",
+      "detail": "PASS: discovery, custom interface, headless simulation, sensor stream, cmd_vel motion\n"
+    }
+  ],
+  "timestamp_utc": "2026-09-24T09:45:16Z",
+  "privacy": "No hostname, user name, SSH keys, environment dump, or access token collected."
+}
