@@ -31,22 +31,26 @@
 
 **Важно:** преподаватель заранее публикует образ, фиксирует digest в `.env` и выдаёт адрес вашего репозитория. Не запускайте сборку образа во время занятия.
 
-В терминале **хоста**, в клонированном репозитории:
+В терминале **хоста**, начиная из корня личного репозитория:
 
 ```bash
+git switch master
+cd task01
 docker compose up -d --wait
 ./course doctor
 ```
 
 Откройте IDE `http://127.0.0.1:8080` и поле `http://127.0.0.1:8081`. Встроенный терминал IDE уже знает ROS underlay. `./course doctor` на хосте вызывает `course doctor` внутри и передаёт результат проверки Docker. Вызванный только из IDE doctor честно помечает host Docker как `not_checked`: Docker socket внутрь не передаётся.
 
-Doctor проверяет доступность Docker/Compose через хостовый wrapper, доступные внутренние порты, запись в workspace, видимое свободное место, ROS imports и **реальный headless smoke test**: discovery, `shad_interfaces/msg/SensorSample` и движение по cmd_vel. Отчёт сохраняется в `reports/environment.json`. Он не содержит hostname, токенов, SSH-ключей или полного окружения.
+Doctor проверяет доступность Docker/Compose через хостовый wrapper, доступные внутренние порты, запись в workspace, видимое свободное место, ROS imports и **реальный headless smoke test**: discovery, `shad_interfaces/msg/SensorSample` и движение по cmd_vel. Отчёт сохраняется в `reports/environment.json`. Он не содержит hostname, токенов, SSH-ключей или полного окружения и должен попасть в итоговый коммит.
+
+Если преподаватель просит заранее подтвердить готовность окружения, сделайте
+промежуточный commit из `task01/`. Он не заменяет итоговую сдачу:
 
 ```bash
-# Хост:
 git add reports/environment.json
-git commit -m "Environment verified"
-git push
+git commit -m "L01: verify environment"
+git push origin master
 ```
 
 Если свободно меньше 3 GiB в видимом workspace, doctor завершится ошибкой. Рекомендация 30 GB относится к диску хоста в целом: образ, Docker cache и будущие занятия. Это не измеренный размер данного образа.
@@ -185,15 +189,27 @@ Extension-cases `inside` и `cancel` отмечаются отдельно и н
 
 ## 9. Сдача — последние 10 минут
 
-В `docs/verification.md` укажите команды `found` и `absent`, их результат и одну известную границу решения. Достаточно 5–10 строк, без отдельного incident report. Подробный разбор дефекта появится в Week 5.
+Заполните `docs/verification.md`: для `found` и `absent` укажите `PASS` или
+`FAIL` (при ошибке — одну короткую причину), затем одну конкретную границу
+решения и использовали ли вы LLM. Если core-проблем не обнаружено, границей
+может быть bonus `inside` или `cancel`, который вы не реализовывали или не
+проверяли. Полные логи, Student ID и Commit SHA не нужны. Достаточно 5–10 строк
+собственных ответов.
+
+`docs/verification.md` обязателен как краткая запись самопроверки, но отдельных
+баллов за него нет и авто-грейдер его не разбирает. Оценка определяется
+поведением решения в `found` и `absent`; этот файл не заменяет код и тесты.
 
 Все файлы решения должны остаться внутри уже существующей папки `task01/`.
 Закоммитьте `src/hidden_gift/`, `reports/environment.json` и
 `docs/verification.md`, затем отправьте ветку `master`:
 
 ```bash
+# Терминал хоста, из task01/:
 git switch master
+git status --short
 git add src/hidden_gift reports/environment.json docs/verification.md
+git diff --cached --stat
 git commit -m "L01: implement and verify Hidden Gift action"
 git push origin master
 ```

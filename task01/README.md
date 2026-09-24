@@ -4,14 +4,19 @@
 
 > The simplified scope in `docs/Practice_L01.md` is authoritative; generated HTML/PDF are released from the same source.
 
-**Для студента:** Task 01 находится внутри папки `task01/`. Выполняйте команды ниже из этой папки; образ уже выбран по immutable digest.
+**Для студента:** работайте в личном private-репозитории, в уже существующей
+папке `task01/`. Команды `docker compose`, `./course` и `git` ниже выполняются
+в терминале хоста из `task01/`; команды `course ...` без `./` — только во
+встроенном терминале IDE.
 
 Если в репозитории нет `.env` с immutable digest образа, это ещё не готовый релиз: сообщите преподавателю и не пытайтесь собирать course image во время занятия.
 
 ## Подготовка после публикации образа
 
 ```bash
-# В терминале хоста, в клонированном репозитории:
+# Терминал хоста, начиная из корня личного репозитория:
+git switch master
+cd task01
 docker compose up -d --wait
 ./course doctor
 ```
@@ -49,11 +54,20 @@ course test --case absent
 
 Расширения после core: `course test --case inside`, `course test --case cancel`.
 
+Заполните `docs/verification.md`: для `found` и `absent` укажите `PASS` или
+`FAIL` (при ошибке — одну короткую причину), затем одну границу решения и
+использовали ли вы LLM. Полные логи, Student ID и Commit SHA туда копировать не
+нужно. Это обязательная краткая запись самопроверки, но отдельных баллов за неё
+нет: авто-грейдер оценивает поведение решения в `found` и `absent`.
+
 На хосте:
 
 ```bash
+# Из task01/:
 git switch master
+git status --short
 git add src/hidden_gift reports/environment.json docs/verification.md
+git diff --cached --stat
 git commit -m "L01: implement and verify Hidden Gift action"
 git push origin master
 ```

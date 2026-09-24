@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "image": "ghcr.io/shad-ros2/tasks@sha256:604b85d31cfa14366b7f4c81a6cd08110b37cfe4f3c9804f7dd14be3860b929d",
-  "student_tree_sha256": "d7114948a652d7f5a283db64c1d4f587c6d2f3b9e165106ee0054744b6880e11",
+  "student_tree_sha256": "eb40a4aea4e8a2d7680791abc1b87461685289294a3413b85a6e3052073f8dde",
   "validated_native_architectures": [
     "amd64",
     "arm64"

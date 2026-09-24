@@ -58,16 +58,18 @@ hr { border:0; border-top:1px solid #d7e0eb; margin:8mm 0; }
 <h2>2. Подготовка — 20–30 минут до занятия</h2>
 <p>Достаточно Docker, Compose и Git. Linux, Mac Apple Silicon и Windows через WSL2 подходят для запланированного multi-arch образа; конкретный образ преподаватель должен проверить на amd64 и arm64 до выдачи. Локальные ROS, Gazebo, XQuartz и GPU не нужны.</p>
 <p><strong>Важно:</strong> преподаватель заранее публикует образ, фиксирует digest в <code>.env</code> и выдаёт адрес вашего репозитория. Не запускайте сборку образа во время занятия.</p>
-<p>В терминале <strong>хоста</strong>, в клонированном репозитории:</p>
-<pre><code class="language-bash">docker compose up -d --wait
+<p>В терминале <strong>хоста</strong>, начиная из корня личного репозитория:</p>
+<pre><code class="language-bash">git switch master
+cd task01
+docker compose up -d --wait
 ./course doctor
 </code></pre>
 <p>Откройте IDE <code>http://127.0.0.1:8080</code> и поле <code>http://127.0.0.1:8081</code>. Встроенный терминал IDE уже знает ROS underlay. <code>./course doctor</code> на хосте вызывает <code>course doctor</code> внутри и передаёт результат проверки Docker. Вызванный только из IDE doctor честно помечает host Docker как <code>not_checked</code>: Docker socket внутрь не передаётся.</p>
-<p>Doctor проверяет доступность Docker/Compose через хостовый wrapper, доступные внутренние порты, запись в workspace, видимое свободное место, ROS imports и <strong>реальный headless smoke test</strong>: discovery, <code>shad_interfaces/msg/SensorSample</code> и движение по cmd_vel. Отчёт сохраняется в <code>reports/environment.json</code>. Он не содержит hostname, токенов, SSH-ключей или полного окружения.</p>
-<pre><code class="language-bash"># Хост:
-git add reports/environment.json
-git commit -m &quot;Environment verified&quot;
-git push
+<p>Doctor проверяет доступность Docker/Compose через хостовый wrapper, доступные внутренние порты, запись в workspace, видимое свободное место, ROS imports и <strong>реальный headless smoke test</strong>: discovery, <code>shad_interfaces/msg/SensorSample</code> и движение по cmd_vel. Отчёт сохраняется в <code>reports/environment.json</code>. Он не содержит hostname, токенов, SSH-ключей или полного окружения и должен попасть в итоговый коммит.</p>
+<p>Если преподаватель просит заранее подтвердить готовность окружения, сделайте промежуточный commit из <code>task01/</code>. Он не заменяет итоговую сдачу:</p>
+<pre><code class="language-bash">git add reports/environment.json
+git commit -m &quot;L01: verify environment&quot;
+git push origin master
 </code></pre>
 <p>Если свободно меньше 3 GiB в видимом workspace, doctor завершится ошибкой. Рекомендация 30 GB относится к диску хоста в целом: образ, Docker cache и будущие занятия. Это не измеренный размер данного образа.</p>
 <h2>3. Быстрая проверка ROS graph — 0–10 минут</h2>
@@ -238,10 +240,14 @@ course test --case cancel
 <p>Публичные тесты — обратная связь. Итоговый запуск использует преподавательский образ и другие seeds, но проверяет тот же опубликованный core contract. Изменения студентом тестов, Dockerfile или workflow не меняют критерии. Инфраструктурная ошибка должна идти на перепроверку, а не автоматически превращаться в ноль.</p>
 <p>В масштабе курса: <strong>90% — среднее лучших 9 из 10 практик; 10% — итоговый ролик до 3 минут</strong>. Отдельной устной защиты и выбора треков нет.</p>
 <h2>9. Сдача — последние 10 минут</h2>
-<p>В <code>docs/verification.md</code> укажите команды <code>found</code> и <code>absent</code>, их результат и одну известную границу решения. Достаточно 5–10 строк, без отдельного incident report. Подробный разбор дефекта появится в Week 5.</p>
+<p>Заполните <code>docs/verification.md</code>: для <code>found</code> и <code>absent</code> укажите <code>PASS</code> или <code>FAIL</code> (при ошибке — одну короткую причину), затем одну конкретную границу решения и использовали ли вы LLM. Если core-проблем не обнаружено, границей может быть bonus <code>inside</code> или <code>cancel</code>, который вы не реализовывали или не проверяли. Полные логи, Student ID и Commit SHA не нужны. Достаточно 5–10 строк собственных ответов.</p>
+<p><code>docs/verification.md</code> обязателен как краткая запись самопроверки, но отдельных баллов за него нет и авто-грейдер его не разбирает. Оценка определяется поведением решения в <code>found</code> и <code>absent</code>; этот файл не заменяет код и тесты.</p>
 <p>Все файлы решения должны остаться внутри уже существующей папки <code>task01/</code>. Закоммитьте <code>src/hidden_gift/</code>, <code>reports/environment.json</code> и <code>docs/verification.md</code>, затем отправьте ветку <code>master</code>:</p>
-<pre><code class="language-bash">git switch master
+<pre><code class="language-bash"># Терминал хоста, из task01/:
+git switch master
+git status --short
 git add src/hidden_gift reports/environment.json docs/verification.md
+git diff --cached --stat
 git commit -m &quot;L01: implement and verify Hidden Gift action&quot;
 git push origin master
 </code></pre>
