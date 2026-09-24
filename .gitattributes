@@ -1,0 +1,3 @@
+# Keep Linux/WSL scripts (including the extensionless course launcher) on LF,
+# even when Windows Git uses core.autocrlf=true.
+* text=auto eol=lf
