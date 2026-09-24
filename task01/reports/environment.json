@@ -8,7 +8,7 @@
     {
       "check": "workspace_disk",
       "status": "pass",
-      "detail": "11.0 GiB free visible inside container; 30 GiB host recommendation includes images/cache"
+      "detail": "15.5 GiB free visible inside container; 30 GiB host recommendation includes images/cache"
     },
     {
       "check": "ros_interfaces",
@@ -41,6 +41,6 @@
       "detail": "PASS: discovery, custom interface, headless simulation, sensor stream, cmd_vel motion\n"
     }
   ],
-  "timestamp_utc": "2026-09-24T09:45:16Z",
+  "timestamp_utc": "2026-09-24T12:27:17Z",
   "privacy": "No hostname, user name, SSH keys, environment dump, or access token collected."
 }
