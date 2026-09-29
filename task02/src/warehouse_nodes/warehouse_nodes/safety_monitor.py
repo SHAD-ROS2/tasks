@@ -7,7 +7,7 @@ from rclpy.node import Node
 from warehouse_interfaces.msg import RangeReading, SafetyState
 
 from .core import must_stop
-from .qos import safety_status_qos, sensor_data_qos
+from .qos import panel_status_qos, sensor_data_qos
 
 
 class SafetyMonitor(Node):
@@ -19,8 +19,8 @@ class SafetyMonitor(Node):
         self._last_state: bool | None = None
         self._publisher = self.create_publisher(
             SafetyState,
-            "/safety/state",
-            safety_status_qos(),
+            "safety/state",
+            panel_status_qos(),
         )
         self._subscription = self.create_subscription(
             RangeReading,

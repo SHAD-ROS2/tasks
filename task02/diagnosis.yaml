@@ -1,0 +1,89 @@
+schema: 1
+task: task02
+
+environment:
+  clean_start_command: "cp .env.example .env && ./course up && ./course doctor"
+  ros_distribution: "jazzy"
+  rmw_implementation: "rmw_cyclonedds_cpp"
+
+incidents:
+  - id: "param-yaml-node-name-mismatch"
+    symptom: "range_sensor publishes at 5.00 Hz with the code-default readings program instead of the configured 4.0 Hz / [0.35 m]."
+    evidence:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1"
+      observation: "[range_sensor-1] publishing deterministic ranges at 5.00 Hz (config value is 4.0)."
+    fault_class: "configuration"
+    root_cause: "src/warehouse_bringup/config/warehouse.yaml scoped the block to node name /**/front_range_sensor, but the node is created as range_sensor (see RangeSensor.__init__ and the Node(name=\"range_sensor\", ...) launch action). The wildcard never matched, so the parameter file contributed nothing and every node fell back to its declare_parameter default."
+    minimal_fix: "Renamed the YAML block from /**/front_range_sensor to /**/range_sensor in src/warehouse_bringup/config/warehouse.yaml."
+    verification:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1 ; ros2 param get /robot_1/range_sensor publish_rate_hz ; ros2 param get /robot_1/range_sensor readings_m"
+      observation: "[range_sensor-1] publishing deterministic ranges at 4.00 Hz; ros2 param get returns 4.0 and [0.35] as required by the contract."
+
+  - id: "config-not-installed"
+    symptom: "Every managed node logs a launch warning that the parameter file path does not exist, and no parameter override is applied even after fixing the YAML content."
+    evidence:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1"
+      observation: "[WARNING] [launch_ros.actions.node]: Parameter file path is not a file: /workspace/install/warehouse_bringup/share/warehouse_bringup/config/warehouse.yaml"
+    fault_class: "build/packaging"
+    root_cause: "src/warehouse_bringup/setup.py only added launch/*.launch.py to data_files; the config/ directory was never listed, so colcon build never copied config/warehouse.yaml into install/warehouse_bringup/share/warehouse_bringup/config/, even though both launch files reference that installed path via get_package_share_directory."
+    minimal_fix: "Added (os.path.join(\"share\", package_name, \"config\"), glob(\"config/*.yaml\")) to data_files in src/warehouse_bringup/setup.py."
+    verification:
+      command: "rm -rf build install log && colcon build --event-handlers console_direct+ && find install/warehouse_bringup/share/warehouse_bringup -name warehouse.yaml"
+      observation: "colcon build logs 'copying config/warehouse.yaml -> .../install/warehouse_bringup/share/warehouse_bringup/config'; the file is present after a clean build and the launch warning disappears."
+
+  - id: "obstacle-filter-qos-reliability-mismatch"
+    symptom: "obstacle_filter never receives any range readings, so perception/obstacle, control/motion and cmd_vel stay silent."
+    evidence:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1"
+      observation: "[range_sensor-1] [WARN] New subscription discovered on topic 'range/readings', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: RELIABILITY / [obstacle_filter-2] [WARN] New publisher discovered on topic 'range/readings', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY"
+    fault_class: "QoS"
+    root_cause: "range_sensor publishes range/readings with sensor_data_qos() (BEST_EFFORT), but obstacle_filter subscribed with a plain integer depth (10), which resolves to the system default RELIABLE policy. A RELIABLE subscriber is incompatible with a BEST_EFFORT publisher, so no messages are ever delivered."
+    minimal_fix: "src/warehouse_nodes/warehouse_nodes/obstacle_filter.py now imports sensor_data_qos from .qos and uses it for the range/readings subscription instead of the bare integer depth."
+    verification:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1"
+      observation: "No QoS incompatibility warnings for range/readings; downstream topics (perception/obstacle, control/motion, cmd_vel) carry data as expected."
+
+  - id: "safety-state-absolute-topic-name"
+    symptom: "In the single-robot graph, safety/state is the only application topic that appears as a global /safety/state instead of a namespaced /robot_1/safety/state, which would make two robot instances collide on the same topic."
+    evidence:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1 ; ros2 topic list -t"
+      observation: "/safety/state [warehouse_interfaces/msg/SafetyState] listed without the /robot_1 prefix, while every other application topic is correctly namespaced."
+    fault_class: "namespace/topic-remapping"
+    root_cause: "safety_monitor.py created its publisher on \"/safety/state\" and operator_panel.py subscribed to \"/safety/state\" -- both leading-slash (absolute) names, which bypass PushRosNamespace and are not relative to the robot namespace."
+    minimal_fix: "Changed both the publisher topic in src/warehouse_nodes/warehouse_nodes/safety_monitor.py and the subscription topic in src/warehouse_nodes/warehouse_nodes/operator_panel.py from \"/safety/state\" to the relative \"safety/state\"."
+    verification:
+      command: "ros2 launch warehouse_bringup two_robots.launch.py ; ros2 topic list -t"
+      observation: "Both /robot_1/safety/state and /robot_2/safety/state are listed as separate namespaced topics; operator_panel logs show PANEL_READY for both robots and no CROSS_TALK warnings."
+
+  - id: "safety-state-qos-durability-mismatch"
+    symptom: "The late-joining operator_panel never receives the last published safety/state, even though a state was already published before it started."
+    evidence:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1"
+      observation: "[safety_monitor-5] [WARN] New subscription discovered on topic '/safety/state', requesting incompatible QoS. No messages will be sent to it. Last incompatible policy: DURABILITY / [operator_panel-6] [WARN] New publisher discovered ... Last incompatible policy: DURABILITY"
+    fault_class: "QoS"
+    root_cause: "safety_monitor published safety/state with safety_status_qos() (VOLATILE durability), while operator_panel subscribed with panel_status_qos() (TRANSIENT_LOCAL, depth 1) as required by the published contract. A VOLATILE publisher cannot satisfy a TRANSIENT_LOCAL subscriber, so no history is delivered to a late joiner."
+    minimal_fix: "src/warehouse_nodes/warehouse_nodes/safety_monitor.py now publishes safety/state with panel_status_qos() (RELIABLE, TRANSIENT_LOCAL, depth 1) instead of safety_status_qos(), matching the subscriber and the documented contract."
+    verification:
+      command: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1 panel_delay_s:=1.5 ; ros2 topic echo /robot_1/safety/state --once"
+      observation: "No DURABILITY incompatibility warnings; a fresh subscriber started after the delayed operator_panel still immediately receives the last cached message (sequence: 0, stopped: true, source_namespace: /robot_1) without a new publish."
+
+  - id: "warehouse-nodes-missing-geometry-msgs-dependency"
+    symptom: "warehouse_nodes/package.xml does not declare geometry_msgs even though drive_controller.py imports geometry_msgs.msg.Twist and publishes cmd_vel with it."
+    evidence:
+      command: "grep -n geometry_msgs src/warehouse_nodes/package.xml src/warehouse_nodes/warehouse_nodes/drive_controller.py"
+      observation: "drive_controller.py: 'from geometry_msgs.msg import Twist'; package.xml had no matching <exec_depend>geometry_msgs</exec_depend>, so rosdep/colcon do not treat it as a declared runtime dependency of the package."
+    fault_class: "package manifest/dependency contract"
+    root_cause: "geometry_msgs happened to already be present in the pinned course image, so the missing manifest entry did not fail rosdep install, but it violates the acceptance requirement that every package explicitly declares its direct build/runtime/test dependencies rather than relying on an image's already-installed packages."
+    minimal_fix: "Added <exec_depend>geometry_msgs</exec_depend> to src/warehouse_nodes/package.xml."
+    verification:
+      command: "rosdep install --from-paths src --ignore-src -y"
+      observation: "'#All required rosdeps installed successfully' after the change, and geometry_msgs is now an explicit resolvable rosdep key (ros-jazzy-geometry-msgs) required by the manifest."
+
+final_acceptance:
+  clean_pipeline: "From a container after 'rm -rf build install log': rosdep install, colcon build --event-handlers console_direct+ and colcon test --event-handlers console_direct+ all complete successfully (3 packages built, 7 tests passed, 0 failures); colcon test-result --verbose reports 0 errors, 0 failures, 0 skipped."
+  single_robot_graph: "ros2 launch warehouse_bringup warehouse.launch.py namespace:=robot_1 brings up exactly the six documented nodes under /robot_1, all five application topics with the documented types and namespaced names, zero QoS-incompatibility warnings, and ros2 param get confirms every parameter matches config/warehouse.yaml (publish_rate_hz=4.0, readings_m=[0.35], stop_distance_m=0.6/0.5, cruise_speed_mps=0.35, max_speed_mps=0.5)."
+  late_joiner: "With the default panel_delay_s:=1.5, operator_panel starts after safety_monitor has already published; ros2 topic echo /robot_1/safety/state --once from a brand-new subscriber immediately returns the last cached SafetyState (transient-local depth 1) without waiting for a new publish."
+  two_robot_isolation: "ros2 launch warehouse_bringup two_robots.launch.py brings up all twelve nodes (six under /robot_1, six under /robot_2) with fully namespaced, non-overlapping topic sets; operator_panel logs PANEL_READY for both instances with source_namespace matching each robot's own namespace and no CROSS_TALK warning is ever logged."
+  clean_shutdown: "Sending SIGINT to the foreground 'ros2 launch' process (e.g. via Ctrl+C / timeout -s INT) for both warehouse.launch.py and two_robots.launch.py terminates every managed node process; pgrep for the six node executables returns nothing afterward, confirming no leftover processes."
+
+known_limits: "mission_planner occasionally prints a KeyboardInterrupt traceback from rclpy's internal publisher cleanup during SIGINT shutdown; the process still exits (signal -2, no zombies left behind), so this is cosmetic log noise rather than a functional shutdown defect and was left unchanged to keep the fix minimal. Sending signals to a launch process from a different, unrelated shell session (rather than the session that started it, or a foreground process) is unreliable because non-interactive bash sets SIGINT/SIGQUIT to ignored for backgrounded (&) jobs; all shutdown verification above used a foreground process (timeout -s INT / Ctrl+C) to avoid that shell artifact."

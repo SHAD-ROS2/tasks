@@ -1,4 +1,4 @@
-/**/front_range_sensor:
+/**/range_sensor:
   ros__parameters:
     publish_rate_hz: 4.0
     readings_m: [0.35]

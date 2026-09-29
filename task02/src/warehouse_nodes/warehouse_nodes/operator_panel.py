@@ -14,7 +14,7 @@ class OperatorPanel(Node):
         super().__init__("operator_panel")
         self._subscription = self.create_subscription(
             SafetyState,
-            "/safety/state",
+            "safety/state",
             self._on_safety_state,
             panel_status_qos(),
         )

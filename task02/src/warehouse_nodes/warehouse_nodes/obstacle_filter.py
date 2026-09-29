@@ -7,6 +7,7 @@ from rclpy.node import Node
 from warehouse_interfaces.msg import ObstacleState, RangeReading
 
 from .core import RangeSample, detect_obstacle
+from .qos import sensor_data_qos
 
 
 class ObstacleFilter(Node):
@@ -24,7 +25,7 @@ class ObstacleFilter(Node):
             RangeReading,
             "range/readings",
             self._on_reading,
-            10,
+            sensor_data_qos(),
         )
 
     def _on_reading(self, message: RangeReading) -> None:
