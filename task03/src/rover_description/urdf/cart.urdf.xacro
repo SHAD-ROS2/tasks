@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="practice_cart">
+  <xacro:arg name="frame_prefix" default="rover/"/><xacro:arg name="mount_x" default="0.05"/>
+  <xacro:arg name="visual_x" default="0.10"/><xacro:arg name="arm_axis" default="0 0 1"/>
+  <xacro:property name="p" value="$(arg frame_prefix)"/>
+  <link name="${p}cart_base"><visual><geometry><box size="0.30 0.20 0.10"/></geometry><material name="navy"><color rgba="0.13 0.24 0.36 1"/></material></visual></link>
+  <link name="${p}arm_link"><visual><origin xyz="$(arg visual_x) 0 0"/><geometry><box size="0.20 0.025 0.025"/></geometry><material name="teal"><color rgba="0.04 0.67 0.64 1"/></material></visual></link>
+  <joint name="arm_joint" type="revolute"><parent link="${p}cart_base"/><child link="${p}arm_link"/><origin xyz="$(arg mount_x) 0 0.10"/><axis xyz="$(arg arm_axis)"/><limit lower="-3.14" upper="3.14" effort="1" velocity="1"/></joint>
+  <link name="${p}probe_link"><visual><geometry><sphere radius="0.02"/></geometry><material name="orange"><color rgba="1 0.56 0.16 1"/></material></visual></link>
+  <joint name="probe_joint" type="fixed"><parent link="${p}arm_link"/><child link="${p}probe_link"/><origin xyz="0.20 0 0"/></joint>
+</robot>

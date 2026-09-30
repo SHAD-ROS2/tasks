@@ -1,0 +1,22 @@
+assignment: L03
+student: ""
+observations:
+  - symptom: "Наблюдаемое расхождение"
+    before:
+      command: "Точная команда воспроизведения"
+      evidence: "Существенный вывод или измеренное значение"
+    root_cause: "Объяснение причины, установленной по evidence"
+    change: "Минимальное изменение и его смысл"
+    after:
+      command: "Повторная проверка"
+      evidence: "Результат с числом, единицами и timestamp/frame при необходимости"
+validator:
+  measurement_time_test: "Команда и результат теста против latest"
+  failure_case: "Команда и результат для неуспешного преобразования"
+  namespace_variant: "Команда проверки с другими именами"
+verification:
+  build: "Команда и результат"
+  public_tests: "Команда и результат"
+  acceptance: "Команда и ключевые значения отчёта"
+  cleanup: "Как остановлены запущенные процессы"
+known_limits: []

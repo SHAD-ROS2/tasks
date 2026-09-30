@@ -1,0 +1,31 @@
+services:
+  workspace:
+    build: .
+    image: shad-ros2-l03:2026.1
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      HOME: /tmp/course-home
+      DISPLAY: :99
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-43}"
+      ROS_AUTOMATIC_DISCOVERY_RANGE: LOCALHOST
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - .:/workspace
+    ports:
+      - "127.0.0.1:${RVIZ_PORT:-6083}:6080"
+    shm_size: 512m
+    mem_limit: "${COURSE_MEMORY:-4g}"
+    cpus: "${COURSE_CPUS:-3}"
+    pids_limit: 768
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, bash, -lc, "xdpyinfo -display :99 >/dev/null && test -d /workspace/src && python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:6080/vnc.html\", timeout=2)'"]
+      interval: 3s
+      timeout: 4s
+      start_period: 15s
+      retries: 12

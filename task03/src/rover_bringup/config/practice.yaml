@@ -1,0 +1,8 @@
+/**:
+  ros__parameters:
+    scene: practice
+    delay: 0.20
+    moving: true
+    joint_angle: 0.40
+    mount_x: 0.05
+    arm_axis: "0 0 1"

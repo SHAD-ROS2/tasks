@@ -1,0 +1,25 @@
+# Independent, public calibration specification. Do not fit measurements by
+# changing these constants: repair the model/configuration to match them.
+units: {translation: metre, rotation: radian, stamp: second}
+default_namespace: rover
+default_frame_prefix: rover/
+target_frame: odom
+body_size: [0.60, 0.40, 0.16]
+wheel_radius: 0.10
+mounts:
+  lidar_link: {parent: base_link, xyz: [0.10, 0.0, 0.16], rpy: [0.0, 0.0, 0.0]}
+  camera_link: {parent: base_link, xyz: [0.31, 0.0, 0.06], rpy: [0.0, 0.0, 0.0]}
+  camera_optical_frame: {parent: camera_link, xyz: [0.0, 0.0, 0.0], rpy: [-1.5707963267948966, 0.0, -1.5707963267948966]}
+  imu_link: {parent: base_link, xyz: [-0.12, 0.04, 0.04], rpy: [0.0, 0.0, 1.5707963267948966]}
+landmarks_in_odom:
+  lidar: [3.0, 0.0, 0.36]
+  camera: [4.0, 0.4, 0.4]
+  imu: [1.0, 2.0, 0.6]
+odometry: {parent_frame: odom, child_frame: base_link}
+acceptance:
+  geometry_tolerance_m: 0.005
+  quaternion_norm_tolerance: 0.001
+  tf_wait_timeout_steady_s: 0.50
+  zero_measurement_stamp_allowed: false
+  sensor_delay_sim_s: 0.20
+  fixture_rate_hz: 20

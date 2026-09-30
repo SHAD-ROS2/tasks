@@ -1,0 +1,58 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 238; 243; 247
+    Fixed Frame: @PREFIX@world
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.25
+      Plane Cell Count: 30
+    - Class: rviz_default_plugins/RobotModel
+      Name: Cart
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: @NS@/robot_description
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 5
+    - Class: rviz_default_plugins/TF
+      Name: Frames
+      Enabled: true
+      Show Axes: true
+      Show Names: true
+      Marker Scale: 0.35
+    - Class: rviz_default_plugins/PointStamped
+      Name: Delayed probe
+      Enabled: true
+      Topic:
+        Value: @NS@/probe
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+      Radius: 0.04
+      Color: 240; 110; 60
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Target
+      Enabled: true
+      Topic:
+        Value: @NS@/scene_markers
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 2.8
+      Focal Point: {X: 0.9, Y: 0.2, Z: 0.25}
+      Pitch: 0.55
+      Yaw: 4.0
+Window Geometry:
+  Width: 1440
+  Height: 900

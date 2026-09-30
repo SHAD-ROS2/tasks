@@ -1,0 +1,103 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 238; 243; 247
+    Fixed Frame: @PREFIX@odom
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Ground
+      Enabled: true
+      Cell Size: 0.25
+      Plane Cell Count: 40
+      Color: 170; 185; 195
+    - Class: rviz_default_plugins/RobotModel
+      Name: Rover
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: @NS@/robot_description
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 5
+      Visual Enabled: true
+      Collision Enabled: false
+    - Class: rviz_default_plugins/TF
+      Name: Frames
+      Enabled: true
+      Show Axes: true
+      Show Names: true
+      Show Arrows: true
+      Marker Scale: 0.30
+      Update Interval: 0
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Physical targets
+      Enabled: true
+      Topic:
+        Value: @NS@/scene_markers
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+    - Class: rviz_default_plugins/LaserScan
+      Name: LiDAR
+      Enabled: true
+      Topic:
+        Value: @NS@/scan
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+      Style: Points
+      Size (Pixels): 5
+      Color Transformer: FlatColor
+      Color: 0; 170; 165
+    - Class: rviz_default_plugins/Odometry
+      Name: Odometry
+      Enabled: true
+      Topic:
+        Value: @NS@/odom
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+      Keep: 20
+    - Class: rviz_default_plugins/Marker
+      Name: IMU axis
+      Enabled: true
+      Topic:
+        Value: @NS@/imu_marker
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 10
+    - Class: rviz_default_plugins/Image
+      Name: Camera image
+      Enabled: true
+      Topic:
+        Value: @NS@/camera/image_raw
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 5
+      Transport Hint: raw
+    - Class: rviz_default_plugins/Camera
+      Name: Camera projection
+      Enabled: false
+      Topic:
+        Value: @NS@/camera/image_raw
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        Depth: 5
+      Transport Hint: raw
+      Image Rendering: background and overlay
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 4.5
+      Focal Point: {X: 1.0, Y: 0.0, Z: 0.2}
+      Pitch: 0.55
+      Yaw: 4.0
+Window Geometry:
+  Width: 1440
+  Height: 900

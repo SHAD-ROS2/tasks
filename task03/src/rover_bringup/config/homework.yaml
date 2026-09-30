@@ -1,0 +1,7 @@
+/**:
+  ros__parameters:
+    scene: homework
+    delay: 0.20
+    moving: true
+    imu_frame: base_link
+    odom_child_frame: lidar_link

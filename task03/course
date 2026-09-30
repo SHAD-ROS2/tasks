@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Host helper: ROS and RViz run in the same Linux container on every platform.
+set -euo pipefail
+cd "$(dirname "$0")"
+usage() {
+  cat <<'EOF'
+Usage: ./course <command> [args]
+  up                         build/start the local Jazzy + RViz environment
+  down                       stop the environment
+  doctor                     check ROS packages, workspace and browser desktop
+  build                      build the installed workspace
+  test                       run all package tests (homework TODOs initially fail)
+  shell                      interactive sourced shell
+  run practice|homework [launch arguments]
+  launch <package> <file> [arguments]
+  check [acceptance arguments] headless homework observer; launch homework first
+  exec <command...>           run a command in the sourced workspace
+  desktop                    print the browser RViz address
+EOF
+}
+command_name="${1:-help}"
+if [[ $# -gt 0 ]]; then shift; fi
+case "$command_name" in help|-h|--help) usage; exit 0 ;; esac
+command -v docker >/dev/null || { echo 'Install/start Docker first.' >&2; exit 2; }
+docker info >/dev/null 2>&1 || { echo 'Docker daemon is unavailable.' >&2; exit 2; }
+docker compose version >/dev/null
+require_running() {
+  docker compose ps --status running --services | grep -qx workspace || {
+    echo 'Run ./course up first.' >&2; exit 2;
+  }
+}
+run_sourced() {
+  local tty_flag="-T"
+  if [[ -t 0 && -t 1 ]]; then tty_flag=""; fi
+  docker compose exec ${tty_flag:+$tty_flag} workspace bash -lc \
+    'source /opt/ros/jazzy/setup.bash; if [[ -f /workspace/install/setup.bash ]]; then source /workspace/install/setup.bash; fi; exec "$@"' bash "$@"
+}
+case "$command_name" in
+  up) docker compose up -d --build --wait ;;
+  down) docker compose down ;;
+  desktop)
+    require_running
+    published_address="$(docker compose port workspace 6080)"
+    printf 'RViz desktop: http://localhost:%s/vnc.html?autoconnect=true&resize=scale\n' "${published_address##*:}"
+    ;;
+  doctor)
+    require_running
+    run_sourced bash -c '
+      set -e
+      test -w /workspace
+      for p in rclpy tf2_ros robot_state_publisher joint_state_publisher xacro rviz2; do ros2 pkg prefix "$p"; done
+      xdpyinfo -display :99 >/dev/null
+      python3 -c "import rclpy, yaml, tf2_ros"
+      printf "ROS_DISTRO=%s\nRMW=%s\nDOMAIN=%s\n" "$ROS_DISTRO" "$RMW_IMPLEMENTATION" "$ROS_DOMAIN_ID"
+    '
+    ;;
+  build)
+    require_running
+    run_sourced colcon build --symlink-install --event-handlers console_direct+
+    ;;
+  test)
+    require_running
+    run_sourced bash -c 'test_status=0; colcon test --event-handlers console_direct+ || test_status=$?; colcon test-result --verbose || test_status=$?; exit "$test_status"'
+    ;;
+  shell)
+    require_running
+    docker compose exec workspace bash -lc 'source /opt/ros/jazzy/setup.bash; if [[ -f /workspace/install/setup.bash ]]; then source /workspace/install/setup.bash; fi; exec bash --noprofile --norc -i'
+    ;;
+  run)
+    require_running
+    mode="${1:-}"
+    case "$mode" in practice|homework) shift ;; *) echo 'Use ./course run practice|homework [arguments]' >&2; exit 2 ;; esac
+    run_sourced python3 /workspace/docker/run_launch.py rover_bringup "${mode}.launch.py" "$@"
+    ;;
+  launch)
+    require_running
+    [[ $# -ge 2 ]] || { usage >&2; exit 2; }
+    run_sourced python3 /workspace/docker/run_launch.py "$@"
+    ;;
+  check)
+    require_running
+    run_sourced ros2 run rover_tf_validator acceptance --duration 6 --output /workspace/evidence/acceptance.json "$@" --ros-args -r __ns:=/rover -p use_sim_time:=true
+    ;;
+  exec)
+    require_running
+    [[ $# -gt 0 ]] || { usage >&2; exit 2; }
+    run_sourced "$@"
+    ;;
+  *) usage >&2; exit 2 ;;
+esac

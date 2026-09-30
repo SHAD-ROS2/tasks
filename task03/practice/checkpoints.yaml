@@ -1,0 +1,27 @@
+# Predict first. Run each checkpoint from a fresh launch unless stated otherwise.
+baseline:
+  launch: "ros2 launch rover_bringup practice.launch.py rviz:=true"
+  expected_world_point: [2.0, 0.5, 0.4]
+  moving_frames: [cart_base, arm_link]
+  rigid_frame: probe_link
+mount:
+  launch_arguments: "mount_x:=0.15"
+  predict: "Which TF changes? Which local point coordinates change?"
+visual:
+  launch_arguments: "visual_x:=0.15"
+  predict: "Does changing visual origin alter arm_link or probe_link TF?"
+joint:
+  command: "ros2 param set /rover/fixture joint_angle 0.9"
+  predict: "Which child frames rotate? What happens to old delayed measurements?"
+axis:
+  launch_arguments: "arm_axis:='0 1 0'"
+  predict: "How does the arm move when the joint axis is y?"
+delay:
+  command: "ros2 param set /rover/fixture delay 0.8"
+  predict: "What happens to measurement-time and latest results?"
+pause:
+  command: "ros2 service call /rover/pause std_srvs/srv/SetBool '{data: true}'"
+  predict: "Which timers and timestamps stop? Which timeout must continue?"
+prefix:
+  launch_arguments: "namespace:=cart2 frame_prefix:=cart2/"
+  predict: "What happens if only namespace is changed?"

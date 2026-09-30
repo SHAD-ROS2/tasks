@@ -7,6 +7,7 @@
 | --- | --- |
 | `task01/` | ROS 2 graph, interfaces and actions · Hidden Gift 2.0 |
 | `task02/` | Workspaces, launch, parameters, QoS and discovery · Black-box graph rescue |
+| [`task03/`](task03/README.md) | Time, TF2, URDF/Xacro and robot state · [Практика](task03/docs/Practice_L03.md) · Repair the rover |
 
 ## Где работать
 

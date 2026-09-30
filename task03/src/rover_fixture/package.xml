@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rover_fixture</name><version>0.1.0</version><description>Deterministic L03 clock, trajectory and synthetic sensor stand.</description>
+  <maintainer email="course@example.com">ROS Course</maintainer><license>Apache-2.0</license>
+  <buildtool_depend>python3-setuptools</buildtool_depend>
+  <exec_depend>rclpy</exec_depend><exec_depend>geometry_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>nav_msgs</exec_depend><exec_depend>rosgraph_msgs</exec_depend><exec_depend>visualization_msgs</exec_depend><exec_depend>std_srvs</exec_depend><exec_depend>tf2_ros</exec_depend><exec_depend>builtin_interfaces</exec_depend>
+  <test_depend>python3-pytest</test_depend><export><build_type>ament_python</build_type></export>
+</package>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="course_rover">
+  <xacro:arg name="frame_prefix" default="rover/"/>
+  <xacro:arg name="mounts_file" default="$(find rover_description)/config/homework_mounts.yaml"/>
+  <xacro:property name="p" value="$(arg frame_prefix)"/>
+  <xacro:property name="mounts" value="${xacro.load_yaml('$(arg mounts_file)')}"/>
+  <material name="navy"><color rgba="0.13 0.24 0.36 1"/></material>
+  <material name="teal"><color rgba="0.04 0.67 0.64 1"/></material>
+  <material name="rubber"><color rgba="0.10 0.11 0.13 1"/></material>
+  <material name="orange"><color rgba="1 0.56 0.16 1"/></material>
+  <xacro:macro name="box_inertia" params="mass x y z">
+    <inertial><mass value="${mass}"/><inertia ixx="${mass*(y*y+z*z)/12}" ixy="0" ixz="0" iyy="${mass*(x*x+z*z)/12}" iyz="0" izz="${mass*(x*x+y*y)/12}"/></inertial>
+  </xacro:macro>
+  <link name="${p}base_link">
+    <visual><geometry><box size="0.60 0.40 0.16"/></geometry><material name="navy"/></visual>
+    <visual><origin xyz="0.10 0 0.10"/><geometry><cylinder radius="0.025" length="0.08"/></geometry><material name="navy"/></visual>
+    <visual><origin xyz="0.21 0 -0.10" rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.012" length="0.50"/></geometry><material name="navy"/></visual>
+    <visual><origin xyz="-0.21 0 -0.10" rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.012" length="0.50"/></geometry><material name="navy"/></visual>
+    <collision><geometry><box size="0.60 0.40 0.16"/></geometry></collision>
+    <xacro:box_inertia mass="8" x="0.60" y="0.40" z="0.16"/>
+  </link>
+  <xacro:macro name="wheel" params="name x y">
+    <link name="${p}${name}_wheel_link">
+      <visual><origin rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.10" length="0.06"/></geometry><material name="rubber"/></visual>
+      <collision><origin rpy="${pi/2} 0 0"/><geometry><cylinder radius="0.10" length="0.06"/></geometry></collision>
+      <inertial><mass value="0.5"/><inertia ixx="0.0014" ixy="0" ixz="0" iyy="0.0025" iyz="0" izz="0.0014"/></inertial>
+    </link>
+    <joint name="${name}_wheel_joint" type="continuous"><parent link="${p}base_link"/><child link="${p}${name}_wheel_link"/><origin xyz="${x} ${y} -0.10"/><axis xyz="0 1 0"/></joint>
+  </xacro:macro>
+  <xacro:wheel name="front_left" x="0.21" y="0.25"/><xacro:wheel name="front_right" x="0.21" y="-0.25"/>
+  <xacro:wheel name="rear_left" x="-0.21" y="0.25"/><xacro:wheel name="rear_right" x="-0.21" y="-0.25"/>
+  <link name="${p}lidar_link">
+    <visual><geometry><cylinder radius="0.065" length="0.08"/></geometry><material name="teal"/></visual>
+    <collision><geometry><cylinder radius="0.065" length="0.08"/></geometry></collision>
+    <inertial><mass value="0.2"/><inertia ixx="0.000318" ixy="0" ixz="0" iyy="0.000318" iyz="0" izz="0.000423"/></inertial>
+  </link>
+  <joint name="lidar_joint" type="fixed"><parent link="${p}base_link"/><child link="${p}lidar_link"/><origin xyz="${' '.join(str(v) for v in mounts['lidar_xyz'])}" rpy="${' '.join(str(v) for v in mounts['lidar_rpy'])}"/></joint>
+  <link name="${p}camera_link">
+    <visual><geometry><box size="0.06 0.10 0.06"/></geometry><material name="teal"/></visual>
+    <collision><geometry><box size="0.06 0.10 0.06"/></geometry></collision>
+    <xacro:box_inertia mass="0.15" x="0.06" y="0.10" z="0.06"/>
+  </link>
+  <joint name="camera_joint" type="fixed"><parent link="${p}base_link"/><child link="${p}camera_link"/><origin xyz="${' '.join(str(v) for v in mounts['camera_xyz'])}"/></joint>
+  <link name="${p}camera_optical_frame"/>
+  <joint name="camera_optical_joint" type="fixed"><parent link="${p}camera_link"/><child link="${p}camera_optical_frame"/><origin rpy="${' '.join(str(v) for v in mounts['camera_optical_rpy'])}"/></joint>
+  <link name="${p}imu_link">
+    <visual><geometry><box size="0.045 0.035 0.018"/></geometry><material name="orange"/></visual>
+    <collision><geometry><box size="0.045 0.035 0.018"/></geometry></collision>
+    <xacro:box_inertia mass="0.03" x="0.045" y="0.035" z="0.018"/>
+  </link>
+  <joint name="imu_joint" type="fixed"><parent link="${p}base_link"/><child link="${p}imu_link"/><origin xyz="${' '.join(str(v) for v in mounts['imu_xyz'])}" rpy="${' '.join(str(v) for v in mounts['imu_rpy'])}"/></joint>
+</robot>
