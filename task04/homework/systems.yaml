@@ -1,0 +1,5 @@
+# TODO B: enable the two sensor systems and set the contracted sensor rates.
+# Physics, UserCommands and SceneBroadcaster are already provided.
+sensor_systems: []
+rates: {scan: 0.0, imu: 0.0, camera: 0.0, odom: 50.0}
+camera: {width: 160, height: 120}

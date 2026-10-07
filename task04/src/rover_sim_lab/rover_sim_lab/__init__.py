@@ -1,0 +1,1 @@
+"""Modern Gazebo simulation laboratory."""

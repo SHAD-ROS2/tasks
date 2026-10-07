@@ -1,0 +1,59 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 35; 40; 48
+    Fixed Frame: _PREFIX_odom
+    Frame Rate: 20
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.5
+      Plane Cell Count: 20
+    - Class: rviz_default_plugins/RobotModel
+      Name: Rover
+      Enabled: true
+      Description Source: Topic
+      TF Prefix: _TF_PREFIX_
+      Description Topic:
+        Value: /_NS_/robot_description
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 5
+    - Class: rviz_default_plugins/TF
+      Name: Frames
+      Enabled: true
+      Marker Scale: 0.3
+    - Class: rviz_default_plugins/LaserScan
+      Name: LiDAR
+      Enabled: true
+      Topic:
+        Value: /_NS_/scan
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+      Size (m): 0.035
+      Color Transformer: FlatColor
+      Color: 255; 180; 65
+    - Class: rviz_default_plugins/Image
+      Name: Camera
+      Enabled: true
+      Topic:
+        Value: /_NS_/camera/image_raw
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 5
+      Pitch: 0.6
+      Yaw: 0.8
+      Focal Point: {X: 0.6, Y: 0, Z: 0.1}
+Window Geometry: {Width: 1100, Height: 760}

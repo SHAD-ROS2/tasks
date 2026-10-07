@@ -1,0 +1,9 @@
+# TODO A: connect the inspection rover's five application channels.
+# Gazebo topic suffixes are fixed by the supplied model. ROS contract is public.
+# Keep keys and gz names; fill ros names, message types and directions.
+# Infrastructure clock/odom/joints/tf/ground_truth bridges are supplied separately.
+command: {ros: TODO, gz: actuator/velocity, ros_type: TODO, gz_type: TODO, direction: TODO}
+scan: {ros: TODO, gz: front/ranges, ros_type: TODO, gz_type: TODO, direction: TODO}
+imu: {ros: TODO, gz: body/inertial, ros_type: TODO, gz_type: TODO, direction: TODO}
+image: {ros: TODO, gz: front/rgb, ros_type: TODO, gz_type: TODO, direction: TODO}
+info: {ros: TODO, gz: front/calibration, ros_type: TODO, gz_type: TODO, direction: TODO}

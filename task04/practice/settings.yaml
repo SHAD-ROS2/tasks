@@ -1,0 +1,12 @@
+mode: practice
+model_name: teaching_cart
+gz_root: /lab/practice
+systems: [Physics, UserCommands, SceneBroadcaster, Sensors, Imu]
+rates: {scan: 10.0, imu: 100.0, camera: 10.0, odom: 50.0}
+camera: {width: 160, height: 120}
+bridge:
+  command: {ros: cmd_vel, gz: drive, ros_type: geometry_msgs/msg/Twist, gz_type: gz.msgs.Twist, direction: ROS_TO_GZ}
+  scan: {ros: scan, gz: laser, ros_type: sensor_msgs/msg/LaserScan, gz_type: gz.msgs.LaserScan, direction: GZ_TO_ROS}
+  imu: {ros: imu, gz: inertial, ros_type: sensor_msgs/msg/Imu, gz_type: gz.msgs.IMU, direction: GZ_TO_ROS}
+  image: {ros: camera/image_raw, gz: camera/image, ros_type: sensor_msgs/msg/Image, gz_type: gz.msgs.Image, direction: GZ_TO_ROS}
+  info: {ros: camera/camera_info, gz: camera/info, ros_type: sensor_msgs/msg/CameraInfo, gz_type: gz.msgs.CameraInfo, direction: GZ_TO_ROS}

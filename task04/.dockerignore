@@ -1,0 +1,11 @@
+build
+install
+log
+evidence
+__pycache__
+.git
+docs
+tests
+src
+practice
+homework

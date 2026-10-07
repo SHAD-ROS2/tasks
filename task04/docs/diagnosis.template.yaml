@@ -1,0 +1,19 @@
+environment:
+  commit: ""
+  image: ""
+  architecture: ""
+  package_versions: ""
+experiments:
+  - symptom: ""
+    observation: ""
+    cause: ""
+    change: ""
+    verification_command: ""
+    evidence_path: ""
+    limitation: ""
+timing_conclusion: ""
+noise_conclusion: ""
+counterexample:
+  file: ""
+  defect_detected: ""
+  command: ""

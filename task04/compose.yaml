@@ -1,0 +1,32 @@
+name: shad-l04
+services:
+  workspace:
+    build: .
+    image: "${COURSE_IMAGE:-shad-ros2-l04:2026.1}"
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    working_dir: /workspace
+    environment:
+      HOME: /tmp/course-home
+      DISPLAY: :99
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      QT_X11_NO_MITSHM: "1"
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-44}"
+      GZ_PARTITION: "${GZ_PARTITION:-shad-l04-local}"
+      ROS_AUTOMATIC_DISCOVERY_RANGE: LOCALHOST
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      PYTHONUNBUFFERED: "1"
+    volumes: [".:/workspace"]
+    ports: ["127.0.0.1:${DESKTOP_PORT:-6084}:6080"]
+    shm_size: 512m
+    mem_limit: "${COURSE_MEMORY:-5g}"
+    cpus: "${COURSE_CPUS:-4}"
+    pids_limit: 768
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, bash, -lc, "xdpyinfo -display :99 >/dev/null && python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:6080/vnc.html\", timeout=2)'"]
+      interval: 3s
+      timeout: 4s
+      start_period: 15s
+      retries: 12

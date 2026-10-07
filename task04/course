@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
+usage() {
+  cat <<'EOF'
+L04 — ROS 2 Jazzy / Gazebo Harmonic
+  ./course up                         build image and start browser desktop
+  ./course build                      install the student workspace
+  ./course doctor                     check packages, rendering and workspace
+  ./course practice [headless] [launch arguments]
+  ./course homework [headless] [launch arguments]
+  ./course observe [--mode practice|homework] [--duration 5] [--output PATH]
+  ./course scenario [--mode ...]       motion / pause / step / reset on running sim
+  ./course check [--mode ...]          fresh headless run, checks, report, cleanup
+  ./course control pause|play|step|reset [--steps 1000] [--world-name lab]
+  ./course test                       public tests (homework TODO tests fail initially)
+  ./course desktop                    print browser URL
+  ./course exec COMMAND [ARGS...]      run inside sourced workspace
+  ./course shell                      open interactive shell
+  ./course down                       stop this environment
+Launch args: namespace:=rover frame_prefix:=rover/ world_name:=lab seed:=42
+             target_rtf:=1.0 profile:=ideal|white|biased gui:=true rviz:=true
+Check/observe flags: --namespace rover --frame-prefix rover/ --world-name lab
+                    --profile ideal --target-rtf 1 --seed 42 --timeout 90
+Evidence paths are container paths, e.g. /workspace/evidence/practice.json.
+EOF
+}
+action="${1:-help}"
+[[ $# -eq 0 ]] || shift
+case "$action" in help|-h|--help) usage; exit 0;; esac
+command -v docker >/dev/null || { echo 'Install/start Docker.' >&2; exit 2; }
+docker info >/dev/null 2>&1 || { echo 'Docker daemon unavailable.' >&2; exit 2; }
+run() {
+  local tty_flag=''
+  [[ -t 0 && -t 1 ]] || tty_flag='-T'
+  docker compose exec ${tty_flag:+$tty_flag} workspace bash -lc \
+    'source /opt/ros/jazzy/setup.bash; if [[ -f /workspace/install/setup.bash ]]; then source /workspace/install/setup.bash; fi; exec "$@"' bash "$@"
+}
+require_running() {
+  docker compose ps --status running --services | grep -qx workspace || {
+    echo 'Run ./course up first.' >&2; exit 2;
+  }
+}
+stop_invocation() {
+  docker compose exec -T workspace bash -lc \
+    'source /opt/ros/jazzy/setup.bash; source /workspace/install/setup.bash; exec python3 /workspace/docker/run_launch.py --stop "$1"' bash "$1"
+}
+run_launch() {
+  # Docker exec without a PTY doesn't forward host Ctrl+C to the container.
+  # A unique registration lets the host stop exactly its own launch wrapper.
+  local invocation="$$-$RANDOM-$RANDOM"
+  local interrupted=0
+  local status=0
+  trap 'interrupted=1; stop_invocation "$invocation" || true' INT TERM
+  if run env "COURSE_INVOCATION=$invocation" python3 /workspace/docker/run_launch.py "$@"; then
+    status=0
+  else
+    status=$?
+  fi
+  trap - INT TERM
+  if [[ "$interrupted" -eq 1 ]]; then
+    status=130
+  elif [[ "$status" -ne 0 ]]; then
+    stop_invocation "$invocation" || true
+  fi
+  return "$status"
+}
+case "$action" in
+  up) docker compose up -d --build --wait;;
+  down) docker compose down;;
+  *) require_running
+    case "$action" in
+      build) run colcon build --symlink-install --event-handlers console_direct+;;
+      doctor) run bash -c 'set -e; for p in ros_gz_sim ros_gz_bridge robot_state_publisher rviz2; do ros2 pkg prefix "$p"; done; gz sim --versions; xdpyinfo -display :99 >/dev/null; glxinfo -B; python3 -c "import rclpy, yaml, tf2_ros; import gz.transport13"; uname -m; if ! ros2 pkg prefix rover_sim_lab; then echo "Environment ready. Run ./course build to install the lab workspace."; fi';;
+      desktop) address="$(docker compose port workspace 6080)"; printf 'http://localhost:%s/vnc.html?autoconnect=true&resize=scale\n' "${address##*:}";;
+      practice|homework)
+        if [[ "${1:-}" == headless ]]; then
+          shift
+          run_launch rover_sim_lab sim.launch.py "mode:=$action" gui:=false rviz:=false "$@"
+        else
+          run_launch rover_sim_lab sim.launch.py "mode:=$action" "$@"
+        fi;;
+      run) mode="${1:-}"; shift || true; exec ./course "$mode" "$@";;
+      observe|scenario|check|control) run ros2 run rover_sim_lab lab "$action" "$@";;
+      test) if [[ $# -gt 0 ]]; then run python3 -m pytest -q "$@"; else run python3 -m pytest -q /workspace/tests; fi;;
+      exec) [[ $# -gt 0 ]] || { usage; exit 2; }; run "$@";;
+      shell) docker compose exec workspace bash -lc 'source /opt/ros/jazzy/setup.bash; source /workspace/install/setup.bash; exec bash --noprofile --norc -i';;
+      *) usage >&2; exit 2;;
+    esac;;
+esac
