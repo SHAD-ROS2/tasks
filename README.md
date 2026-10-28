@@ -10,6 +10,7 @@
 | [`task03/`](task03/README.md) | Time, TF2, URDF/Xacro and robot state · [Практика](task03/docs/Practice_L03.md) · Repair the rover |
 | [`task04/`](task04/README.md) | Modern Gazebo and simulation semantics · [Практика](task04/docs/Practice_L04.md) · [Reproducible rover bringup](task04/docs/Homework_L04.md) |
 | [`task05/`](task05/README.md) | ros2_control, hardware abstraction and standard controllers · [Практика: stand and wave](task05/docs/Practice_L05.md) |
+| [`task06/`](task06/README.md) | Observability, rosbag2 and regression testing · [Практика: воспроизводимый дефект оси](task06/docs/Practice_L06.md) |
 
 ## Где работать
 

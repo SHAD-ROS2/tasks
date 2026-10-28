@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- Visual/kinematic teaching model. No world joint, inertia, controller or physics claim. -->
+<robot name="inspection_cart">
+  <material name="blue"><color rgba="0.13 0.38 0.76 1"/></material>
+  <material name="dark"><color rgba="0.12 0.14 0.18 1"/></material>
+  <material name="orange"><color rgba="1 0.51 0.10 1"/></material>
+  <material name="green"><color rgba="0.14 0.8 0.43 1"/></material>
+  <link name="base_link">
+    <visual><origin xyz="0 0 0.17"/><geometry><box size="0.44 0.30 0.12"/></geometry><material name="blue"/></visual>
+  </link>
+  <link name="left_wheel">
+    <visual><origin rpy="1.5707963267948966 0 0"/><geometry><cylinder radius="0.08" length="0.045"/></geometry><material name="dark"/></visual>
+  </link>
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="left_wheel"/><origin xyz="0 0.18 0.08"/><axis xyz="0 1 0"/>
+  </joint>
+  <link name="right_wheel">
+    <visual><origin rpy="1.5707963267948966 0 0"/><geometry><cylinder radius="0.08" length="0.045"/></geometry><material name="dark"/></visual>
+  </link>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/><child link="right_wheel"/><origin xyz="0 -0.18 0.08"/><axis xyz="0 1 0"/>
+  </joint>
+  <link name="rear_support">
+    <visual><geometry><sphere radius="0.035"/></geometry><material name="dark"/></visual>
+  </link>
+  <joint name="rear_support_joint" type="fixed">
+    <parent link="base_link"/><child link="rear_support"/><origin xyz="-0.16 0 0.035"/>
+  </joint>
+  <link name="turret_link">
+    <visual><origin xyz="0.15 0 0.04"/><geometry><box size="0.30 0.045 0.04"/></geometry><material name="orange"/></visual>
+    <visual><geometry><cylinder radius="0.06" length="0.08"/></geometry><material name="orange"/></visual>
+  </link>
+  <joint name="turret_joint" type="revolute">
+    <parent link="base_link"/><child link="turret_link"/>
+    <origin xyz="0.07 0 0.30" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.5707963267948966" upper="1.5707963267948966" effort="1" velocity="1"/>
+  </joint>
+  <link name="probe_tip">
+    <visual><geometry><sphere radius="0.022"/></geometry><material name="green"/></visual>
+  </link>
+  <joint name="probe_tip_joint" type="fixed">
+    <parent link="turret_link"/><child link="probe_tip"/><origin xyz="0.30 0 0.04"/>
+  </joint>
+</robot>

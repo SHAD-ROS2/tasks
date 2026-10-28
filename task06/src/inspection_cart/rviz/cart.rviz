@@ -1,0 +1,47 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Fixed Frame: base_link
+    Background Color: 28; 33; 42
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Ground
+      Enabled: true
+      Cell Size: 0.1
+      Plane Cell Count: 20
+      Color: 95; 102; 114
+    - Class: rviz_default_plugins/RobotModel
+      Name: Inspection cart
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Value: /robot_description
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+      Visual Enabled: true
+      Collision Enabled: false
+    - Class: rviz_default_plugins/TF
+      Name: Frames
+      Enabled: true
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Marker Scale: 0.2
+      Frames:
+        All Enabled: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 1.2
+      Focal Point: {X: 0.08, Y: 0.0, Z: 0.17}
+      Pitch: 0.5
+      Yaw: 0.8
+Window Geometry:
+  Width: 1100
+  Height: 760

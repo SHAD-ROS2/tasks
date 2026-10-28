@@ -1,0 +1,2 @@
+# Optional on the host: the same tests also run with python3 -m unittest.
+pytest>=7.4,<9
