@@ -1,0 +1,122 @@
+{
+  "squat.png": {
+    "sample_ids": [
+      "demo-squat"
+    ],
+    "notes": "Local recorded free-base steady squat; both knee curves are measured joint states.",
+    "measured": {
+      "min_pelvis_height_m": 0.7815789082003031,
+      "pelvis_height_drop_m": 0.010284595987539613,
+      "max_tracking_error_rad": 0.0032062622915984273,
+      "both_feet_contact_fraction": 1.0
+    }
+  },
+  "torso-com.png": {
+    "sample_ids": [
+      "demo-standing",
+      "demo-torso-com"
+    ],
+    "notes": "Recorded free-base observation without trajectory. Time starts at the first row of each monitor trace; the dotted line is the abort sample.",
+    "measured": {
+      "abs_pitch_max_deg": 25.933058764313984,
+      "abs_roll_max_deg": 2.384883331570061e-07,
+      "observed_until_s": 0.928,
+      "abort_reason": "tilt_limit",
+      "pause_confirmed": true
+    }
+  },
+  "link-mass.png": {
+    "sample_ids": [
+      "demo-standing",
+      "demo-link-mass"
+    ],
+    "notes": "Recorded free-base observation without trajectory. Time starts at the first row of each monitor trace; the dotted line is the abort sample.",
+    "measured": {
+      "abs_pitch_max_deg": 28.241603116051426,
+      "abs_roll_max_deg": 15.770534812805069,
+      "observed_until_s": 0.14300000000000002,
+      "abort_reason": "tilt_limit",
+      "pause_confirmed": true
+    }
+  },
+  "inertia.png": {
+    "sample_ids": [
+      "demo-squat",
+      "demo-inertia-repeat"
+    ],
+    "notes": "Matched 12 s / .18 rad measured trials. Joint tracking error is the maximum absolute error reported by action feedback. Repeated cached feedback at the end of the trace is omitted.",
+    "measured": {
+      "control_pitch_deg": 5.31455258105128e-05,
+      "fault_pitch_deg": 9.698082931026024,
+      "control_tracking_error_rad": 0.0032062622915984273,
+      "fault_tracking_error_rad": 0.003226218960072358
+    }
+  },
+  "joint-axis.png": {
+    "sample_ids": [
+      "demo-fixed-axis-control",
+      "demo-fixed-axis-repeat"
+    ],
+    "notes": "Lateral ankle coordinate calculated by FK from recorded joint states and each run’s generated-model axis. Right panel shows measured joint states. Independent Gazebo pose QA found ~3.8 cm lateral range.",
+    "measured": {
+      "control_ankle_y_range_m": 1.5765166949677223e-14,
+      "fault_ankle_y_range_m": 0.03829343498845594,
+      "control_tracking_error_rad": 0.004799853749362648,
+      "fault_tracking_error_rad": 0.004835870865094016
+    }
+  },
+  "slippery-feet.png": {
+    "sample_ids": [
+      "qa-normal-grip",
+      "qa-low-grip",
+      "demo-low-grip"
+    ],
+    "notes": "Left: matched QA summary peaks. Right: separate recorded low-friction demonstration; no invented dry-floor time series. Foot motion estimated by FK, not a force-based no-slip proof.",
+    "measured": {
+      "qa_normal_max_left_foot_drift_m": 2.5918976267323244e-05,
+      "qa_low_max_left_foot_drift_m": 2.190339617717342,
+      "demo_low_max_left_foot_drift_m": 2.407096919248508,
+      "demo_force_y_n": 15.0
+    }
+  },
+  "slow-servo.png": {
+    "sample_ids": [
+      "demo-servo-control",
+      "demo-servo-lag"
+    ],
+    "notes": "Paired action feedback; each time axis is aligned to first finite feedback sample. Repeated cached feedback at the end of each trace is omitted. The dashed reference is the control trial’s recorded desired curve; both trials have the same reference profile.",
+    "measured": {
+      "control_waist_error_rad": 0.008094922205867383,
+      "slow_waist_error_rad": 0.0885656542893114
+    }
+  },
+  "swapped-joints.png": {
+    "sample_ids": [
+      "recorded-elbow-sweep",
+      "recorded-swapped-joints"
+    ],
+    "notes": "Measured left/right actual angles from paired fixed-base action runs. Each time axis starts at first finite action feedback; repeated cached feedback at the end of each trace is omitted. Both actions succeeded.",
+    "measured": {
+      "normal_left_elbow_max_rad": 0.9000000000028098,
+      "normal_right_elbow_max_rad": 0.15000000000589084,
+      "normal_plotted_feedback_samples": 433,
+      "swapped_left_elbow_max_rad": 0.1500000000058419,
+      "swapped_right_elbow_max_rad": 0.9000000000028096,
+      "swapped_plotted_feedback_samples": 430
+    }
+  },
+  "reference-chatter.png": {
+    "sample_ids": [
+      "qa-steady-reference",
+      "qa-chattering-reference"
+    ],
+    "notes": "Committed measured-reference graphic, copied unchanged."
+  },
+  "spawn-bounce.png": {
+    "sample_ids": [
+      "qa-drop-control",
+      "qa-elastic-soles"
+    ],
+    "notes": "Committed startup comparison graphic, copied unchanged."
+  }
+}

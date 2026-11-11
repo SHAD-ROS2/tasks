@@ -1,0 +1,21 @@
+{
+  "folders": [{ "name": "L07 — Practice", "path": "." }],
+  "settings": {
+    "workbench.startupEditor": "none",
+    "workbench.editor.enablePreview": false,
+    "workbench.colorTheme": "Default Light Modern",
+    "editor.fontSize": 20,
+    "editor.lineHeight": 28,
+    "editor.minimap.enabled": false,
+    "editor.wordWrap": "on",
+    "explorer.compactFolders": false,
+    "task.allowAutomaticTasks": "off",
+    "files.exclude": {
+      "build": true,
+      "install": true,
+      "log": true,
+      "**/__pycache__": true,
+      "vendor/unitree_g1/meshes": true
+    }
+  }
+}

@@ -11,6 +11,7 @@
 | [`task04/`](task04/README.md) | Modern Gazebo and simulation semantics · [Практика](task04/docs/Practice_L04.md) · [Reproducible rover bringup](task04/docs/Homework_L04.md) |
 | [`task05/`](task05/README.md) | ros2_control, hardware abstraction and standard controllers · [Практика: stand and wave](task05/docs/Practice_L05.md) |
 | [`task06/`](task06/README.md) | Observability, rosbag2 and regression testing · [Практика: воспроизводимый дефект оси](task06/docs/Practice_L06.md) |
+| [`task07/`](task07/README.md) | Динамика, контакты и управление G1 · [Таблица диагностики с измерениями](task07/DIAGNOSTICS.md) · практика без сдачи |
 
 ## Где работать
 

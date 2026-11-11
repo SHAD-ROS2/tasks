@@ -1,0 +1,4 @@
+# Preserve the upstream bytes recorded in PROVENANCE.json on every platform.
+g1_23dof_mode_10.urdf -text whitespace=cr-at-eol
+LICENSE -text whitespace=cr-at-eol
+meshes/*.STL -text

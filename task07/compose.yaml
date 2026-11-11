@@ -1,0 +1,68 @@
+name: shad-l07
+services:
+  workspace:
+    image: "${COURSE_IMAGE:-shad-ros2-l05:2026.1}"
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    working_dir: /workspace/l07
+    environment:
+      HOME: /tmp/course-home
+      DISPLAY: :99
+      LIBGL_ALWAYS_SOFTWARE: "1"
+      QT_X11_NO_MITSHM: "1"
+      ROS_DOMAIN_ID: "${ROS_DOMAIN_ID:-67}"
+      GZ_PARTITION: "${GZ_PARTITION:-shad-l07-local}"
+      ROS_AUTOMATIC_DISCOVERY_RANGE: LOCALHOST
+      RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
+      PYTHONUNBUFFERED: "1"
+    volumes: ["./:/workspace/l07"]
+    ports: ["127.0.0.1:${DESKTOP_PORT:-6087}:6080"]
+    shm_size: 512m
+    mem_limit: "${COURSE_MEMORY:-5g}"
+    cpus: "${COURSE_CPUS:-4}"
+    pids_limit: 768
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, bash, -lc, "xdpyinfo -display :99 >/dev/null && python3 -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:6080/vnc.html\", timeout=2)'"]
+      interval: 3s
+      timeout: 4s
+      start_period: 15s
+      retries: 12
+  editor:
+    profiles: [demo]
+    image: "${COURSE_IMAGE:-shad-ros2-l05:2026.1}"
+    init: true
+    user: "${LOCAL_UID:-1000}:${LOCAL_GID:-1000}"
+    working_dir: /workspace/l07
+    environment:
+      HOME: /tmp/l07-editor
+    entrypoint: ["/usr/bin/code-server"]
+    command:
+      - --bind-addr=0.0.0.0:8080
+      - --auth=none
+      - --disable-telemetry
+      - --disable-update-check
+      - --disable-proxy
+      - --disable-file-uploads
+      - /workspace/l07/l07-demo.code-workspace
+    volumes: ["./:/workspace/l07:ro"]
+    ports: ["127.0.0.1:${EDITOR_PORT:-8087}:8080"]
+    networks: [editor]
+    read_only: true
+    tmpfs: ["/tmp:mode=1777,size=256m"]
+    mem_limit: 768m
+    cpus: "1"
+    pids_limit: 128
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=2).close()"]
+      interval: 3s
+      timeout: 4s
+      start_period: 10s
+      retries: 10
+
+networks:
+  editor:
+    driver: bridge
