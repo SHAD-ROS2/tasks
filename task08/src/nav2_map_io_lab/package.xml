@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>nav2_map_io_lab</name>
+  <version>0.1.0</version>
+  <description>File-format interoperability demonstration using the Nav2 MapIO library.</description>
+  <maintainer email="ros2-course@example.invalid">SHAD ROS 2 course</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>nav2_map_server</depend>
+  <depend>nav_msgs</depend>
+  <depend>rclcpp</depend>
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

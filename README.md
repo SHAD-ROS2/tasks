@@ -12,6 +12,7 @@
 | [`task05/`](task05/README.md) | ros2_control, hardware abstraction and standard controllers · [Практика: stand and wave](task05/docs/Practice_L05.md) |
 | [`task06/`](task06/README.md) | Observability, rosbag2 and regression testing · [Практика: воспроизводимый дефект оси](task06/docs/Practice_L06.md) |
 | [`task07/`](task07/README.md) | Динамика, контакты и управление G1 · [Таблица диагностики с измерениями](task07/DIAGNOSTICS.md) · практика без сдачи |
+| [`task08/`](task08/README.md) | Production architecture and contribution · [Практика Nav2: исправление и draft PR](task08/README.md) |
 
 ## Где работать
 

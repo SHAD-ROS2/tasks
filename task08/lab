@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+image=shad-ros2-task08:jazzy-v1
+read -r checkout_id _ < <(printf '%s' "$root" | cksum)
+volume="shad-ros2-task08-${checkout_id}"
+
+usage() {
+  cat <<'HELP'
+Usage: ./lab <command>
+
+  doctor                    Check Docker and the local dependency image
+  prepare                   Build the Docker image and compile the workspace
+  reproduce [flat]          Save and load maps/inspection, or inspection with flat
+  test [GTEST_FILTER]        Build and run the upstream MapIO gtests
+  compatibility             Load a supplied older map from another directory
+HELP
+}
+
+command=${1:-help}
+case "$command" in
+  help|-h|--help) usage; exit 0 ;;
+  test)
+    if (( $# > 2 )); then usage >&2; exit 2; fi
+    ;;
+  reproduce)
+    if (( $# > 2 )) || [[ -n "${2:-}" && "$2" != flat ]]; then usage >&2; exit 2; fi
+    ;;
+  doctor|prepare|compatibility)
+    if (( $# != 1 )); then usage >&2; exit 2; fi
+    ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+if ! command -v docker >/dev/null; then
+  echo 'Docker is required. Start Docker and rerun ./lab doctor.' >&2
+  exit 2
+fi
+
+if ! docker version --format '{{.Server.Os}}/{{.Server.Arch}}'; then
+  echo 'Docker daemon is unavailable. Start it and rerun ./lab doctor.' >&2
+  exit 2
+fi
+
+if [[ "$command" == doctor ]]; then
+  if docker image inspect "$image" --format 'Dependency image: {{.Id}}' 2>/dev/null; then
+    echo 'Run ./lab prepare before class to warm the build cache.'
+  else
+    echo 'Dependency image is missing. Run ./lab prepare before class.'
+  fi
+  exit 0
+fi
+
+if [[ "$command" == prepare ]]; then
+  docker build -t "$image" "$root"
+elif ! docker image inspect "$image" >/dev/null 2>&1; then
+  echo 'Run ./lab prepare first.' >&2
+  exit 2
+fi
+
+exec docker run --rm --network none \
+  --mount "type=bind,source=$root,target=/lab,readonly" \
+  --mount "type=volume,source=$volume,target=/work" \
+  --workdir /work "$image" bash /lab/tools/run-in-container.sh "$@"

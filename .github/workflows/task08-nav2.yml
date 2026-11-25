@@ -1,0 +1,36 @@
+name: Task 08 · Nav2 MapIO
+
+on:
+  pull_request:
+    paths:
+      - 'task08/**'
+      - '.github/workflows/task08-nav2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  map-io:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: task08
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Build the Jazzy workspace
+        run: |
+          git rev-parse HEAD
+          ./lab prepare
+      - name: Run MapIO regression tests
+        run: ./lab test
+      - name: Check existing maps
+        run: ./lab compatibility
+      - name: Verify the ordinary round trip
+        run: ./lab reproduce flat
+      - name: Verify the nested relative path
+        run: ./lab reproduce
